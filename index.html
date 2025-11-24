@@ -8,15 +8,86 @@
       margin: 0;
       height: 100%;
       overflow: hidden;
+      background: #000;
+      color: #fff;
+      font-family: sans-serif;
     }
+
     iframe {
       border: none;
       width: 100%;
       height: 100%;
+      display: none; /* hidden until cookie access granted */
+    }
+
+    #enableBox {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: #000;
+      gap: 20px;
+    }
+
+    #enableBtn {
+      padding: 12px 24px;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <iframe src="https://hippocampal-iciest-sha.ngrok-free.dev"></iframe>
+
+  <!-- Permission UI -->
+  <div id="enableBox">
+    <h2>Enable access to continue</h2>
+    <button id="enableBtn">Enable Cookies</button>
+  </div>
+
+  <!-- Your iframe -->
+  <iframe id="mainFrame" src="https://hippocampal-iciest-sha.ngrok-free.dev"></iframe>
+
+  <script>
+    const enableBox = document.getElementById("enableBox");
+    const iframe = document.getElementById("mainFrame");
+    const btn = document.getElementById("enableBtn");
+
+    async function checkAccess() {
+      // If browser does NOT support Storage Access API → just show iframe
+      if (!("hasStorageAccess" in document)) {
+        enableBox.style.display = "none";
+        iframe.style.display = "block";
+        return;
+      }
+
+      const has = await document.hasStorageAccess();
+
+      if (has) {
+        // Already allowed → show iframe immediately
+        enableBox.style.display = "none";
+        iframe.style.display = "block";
+      } else {
+        // Needs permission → show the "Enable Cookies" box
+        enableBox.style.display = "flex";
+      }
+    }
+
+    btn.onclick = async () => {
+      try {
+        await document.requestStorageAccess();
+        // After permission is granted → show iframe
+        enableBox.style.display = "none";
+        iframe.style.display = "block";
+      } catch (err) {
+        alert("Permission denied. Iframe cannot access cookies.");
+      }
+    };
+
+    checkAccess();
+  </script>
+
 </body>
 </html>
