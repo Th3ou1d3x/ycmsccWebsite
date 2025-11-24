@@ -1,93 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Coding Club</title>
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      overflow: hidden;
-      background: #000;
-      color: #fff;
-      font-family: sans-serif;
-    }
+    <meta charset="UTF-8">
+    <title>Coding Club</title>
+    <style>
+        /* ===== PAGE BACKGROUND ===== */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0b0c10, #1f2833);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #fff;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-      display: none; /* hidden until cookie access granted */
-    }
+        /* ===== GLITCH HEADER ===== */
+        .glitch {
+          position: relative;
+          font-size: 35px;
+          font-weight: 700;
+          line-height: 1.2;
+          color: #fff;
+          letter-spacing: 3px;
+          z-index: 1;
+          margin-bottom: 30px;
+        }
+        .glitch:before,
+        .glitch:after {
+          display: block;
+          content: attr(data-glitch);
+          position: absolute;
+          top: 0;
+          left: 0;
+          opacity: 0.8;
+        }
+        .glitch:before { animation: glitch 0.4s cubic-bezier(0.25,0.46,0.45,0.94) both infinite; color: #8b00ff; z-index: -1;}
+        .glitch:after { animation: glitch 0.4s cubic-bezier(0.25,0.46,0.45,0.94) reverse both infinite; color: #00e571; z-index: -2;}
+        @keyframes glitch {
+          0% { transform: translate(0); }
+          20% { transform: translate(-3px, 3px); }
+          40% { transform: translate(-3px, -3px); }
+          60% { transform: translate(3px, 3px); }
+          80% { transform: translate(3px, -3px); }
+          100% { transform: translate(0); }
+        }
 
-    #enableBox {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background: #000;
-      gap: 20px;
-    }
+        /* ===== BUTTONS ===== */
+        button {
+          outline: 0;
+          border: 2px solid transparent;
+          display: flex;
+          flex-direction: column;
+          width: 150px;
+          height: 35px;
+          border-radius: 0.4em;
+          background: #111;
+          color: #fff;
+          overflow: hidden;
+          font-family: 'Segoe UI', sans-serif;
+          box-shadow: 0 0 6px rgba(0,0,0,0.5);
+          position: relative;
+          cursor: pointer;
+        }
+        button div {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top:0;
+          left:0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.5s cubic-bezier(.16,1,.3,1);
+        }
+        button div:first-child { z-index:2; }
+        button div:last-child { transform: translateY(100%); z-index:1; }
+        button:hover div:first-child { transform: translateY(-100%); }
+        button:hover div:last-child { transform: translateY(0); }
+        button p { margin:0; font-size:12px; font-weight:bold; line-height:1; color:#fff; }
+        button:hover { transform: scale(1.05); }
+        button:active { transform: scale(0.95); }
+        @keyframes rgbGlow {
+          0% { box-shadow:0 0 4px rgba(255,0,0,0.6); border-color: rgb(255,0,0);}
+          33% { box-shadow:0 0 4px rgba(0,255,0,0.6); border-color: rgb(0,255,0);}
+          66% { box-shadow:0 0 4px rgba(0,128,255,0.6); border-color: rgb(0,128,255);}
+          100% { box-shadow:0 0 4px rgba(255,0,0,0.6); border-color: rgb(255,0,0);}
+        }
+        button.hover-btn { animation: rgbGlow 2.5s infinite linear; }
 
-    #enableBtn {
-      padding: 12px 24px;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-  </style>
+        .coolinput { margin-bottom: 15px; }
+        a { text-decoration: none; }
+
+        /* ===== IFRAME FULLSCREEN ===== */
+        .flask-iframe {
+          border: none;
+          width: 100%;
+          height: 600px; /* or whatever height you want */
+        }
+    </style>
 </head>
 <body>
+    <!-- Glitch header -->
+    <div class="coolinput">
+        <div class="glitch" data-glitch="CODING CLUB">CODING CLUB</div>
+    </div>
 
-  <!-- Permission UI -->
-  <div id="enableBox">
-    <h2>Enable access to continue</h2>
-    <button id="enableBtn">Enable Cookies</button>
-  </div>
+    <!-- User info -->
+    <div class="user" style="top: 0; right: 0; position: fixed;">
+        <a href="/signin">
+            <img src="/favicon.ico" alt="userimg" style="right: 0;">
+            <p>{{ usrname }}</p>
+        </a>
+    </div>
 
-  <!-- Your iframe -->
-  <iframe id="mainFrame" src="https://hippocampal-iciest-sha.ngrok-free.dev"></iframe>
+    <!-- Links -->
+    <div class="coolinput">
+        {% for link, name in links.items() %}
+        <a href="{{ link }}"><button class="hover-btn">
+            <div><span><p>{{ name }}</p></span></div>
+            <div><span><p>GO!</p></span></div>
+        </button></a>
+        {% endfor %}
+    </div>
 
-  <script>
-    const enableBox = document.getElementById("enableBox");
-    const iframe = document.getElementById("mainFrame");
-    const btn = document.getElementById("enableBtn");
-
-    async function checkAccess() {
-      // If browser does NOT support Storage Access API → just show iframe
-      if (!("hasStorageAccess" in document)) {
-        enableBox.style.display = "none";
-        iframe.style.display = "block";
-        return;
-      }
-
-      const has = await document.hasStorageAccess();
-
-      if (has) {
-        // Already allowed → show iframe immediately
-        enableBox.style.display = "none";
-        iframe.style.display = "block";
-      } else {
-        // Needs permission → show the "Enable Cookies" box
-        enableBox.style.display = "flex";
-      }
-    }
-
-    btn.onclick = async () => {
-      try {
-        await document.requestStorageAccess();
-        // After permission is granted → show iframe
-        enableBox.style.display = "none";
-        iframe.style.display = "block";
-      } catch (err) {
-        alert("Permission denied. Iframe cannot access cookies.");
-      }
-    };
-
-    checkAccess();
-  </script>
-
+    <!-- ===== IFRAME EMBED ===== -->
+    <div>
+        <iframe class="flask-iframe" src="https://hippocampal-iciest-sha.ngrok-free.dev"></iframe>
+    </div>
 </body>
 </html>
